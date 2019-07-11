@@ -1,5 +1,10 @@
 language: go
 
+# Build branches only when merging to master
+branches:
+  only:
+    - master
+
 before_install:
   - env GO111MODULE=off go get github.com/mattn/goveralls
   - curl -sfL https://install.goreleaser.com/github.com/golangci/golangci-lint.sh | sh -s -- -b $(go env GOPATH)/bin v1.17.1
