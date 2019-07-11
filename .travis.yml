@@ -1,9 +1,11 @@
 language: go
 
-# Build branches only when merging to master
+go: 1.12
+
 branches:
   only:
     - master
+    - /^v.*$/
 
 before_install:
   - env GO111MODULE=off go get github.com/mattn/goveralls
