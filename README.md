@@ -25,7 +25,7 @@ go-review uses following environment variables to access gerrit review server:
 Behavior can be controlled with following flags:
 
  - `-version`: print versions details and exit
- - `-dry`: parse env vars and input but do not publish review
+ - `-dry-run`: parse env vars and input but do not publish review
  - `-show`: print lines while parsing
 
 ## Examples
