@@ -4,7 +4,7 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/heppu/go-review)](https://goreportcard.com/report/github.com/heppu/go-review)
 
 # Go Review
-Publish reports from different Go linters as gerrit review comments.
+Publish reports from different Go linters as gerrit review comments as part of CI pipe.
 
 ## Install
 
