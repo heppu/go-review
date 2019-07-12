@@ -48,3 +48,15 @@ go vet ./... 2>&1 | go-review
 ```sh
 staticcheck ./... | go-review
 ```
+
+### Jenkins pipeline
+
+```groovy
+stage('Lint') {
+    steps {
+        sh 'golangci-lint run --new-from-rev=HEAD~ --out-format=line-number --print-issued-lines=false | go-review'
+    }
+}
+```
+
+
