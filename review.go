@@ -49,6 +49,11 @@ func LinesToReviewComments(r io.Reader) (comments map[string][]gerrit.CommentInp
 	for scanner.Scan() {
 		lineNumber++
 		line := scanner.Text()
+
+		if strings.HasPrefix(line, "#") {
+			continue
+		}
+
 		problem, err := parseLine(line)
 		if err != nil {
 			return nil, &ParseError{LineNumber: lineNumber, Err: err}

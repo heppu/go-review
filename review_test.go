@@ -68,6 +68,13 @@ file_2.go:3:5: problem`),
 		comments: map[string][]gerrit.CommentInput{
 			"some.go/file.go": {{Line: 1, Message: "problem"}},
 		},
+	}, {
+		name: "CommentLine",
+		input: strings.NewReader(`# some/pkg
+file.go:1:2: some problem`),
+		comments: map[string][]gerrit.CommentInput{
+			"file.go": {{Line: 1, Message: "some problem"}},
+		},
 	}}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
