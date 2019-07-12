@@ -4,6 +4,7 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	"io"
 	"os"
 
 	"github.com/heppu/go-review"
@@ -14,13 +15,17 @@ var (
 	version = "dev"
 	commit  = "none"
 	date    = "unknown"
+
+	ver  = flag.Bool("version", false, "print versions details and exit")
+	dry  = flag.Bool("dry-run", false, "parse env vars and input but do not publish review")
+	show = flag.Bool("show", false, "print lines while parsing")
 )
 
 func main() {
-	v := flag.Bool("version", false, "print versions details and exit")
 	flag.Parse()
-	if *v {
-		fmt.Printf("%v, commit %v, built at %v", version, commit, date)
+
+	if *ver {
+		fmt.Fprintf(os.Stderr, "%v, commit %v, built at %v\n", version, commit, date)
 		os.Exit(0)
 	}
 
@@ -35,17 +40,26 @@ func main() {
 		auth = gerrit.BasicAuth(username, password)
 	}
 
-	comments, err := review.LinesToReviewComments(os.Stdin)
+	var input io.Reader = os.Stdin
+	if *show {
+		input = io.TeeReader(os.Stdin, os.Stdout)
+	}
+
+	comments, err := review.LinesToReviewComments(input)
 	if err != nil {
-		fmt.Println(err)
+		fmt.Fprintln(os.Stderr, err)
 		if err == review.ErrNoProblemsFound {
-			os.Exit(0)
+			return
 		}
 		os.Exit(1)
 	}
 	r := gerrit.ReviewInput{
 		Message:  "go-review",
 		Comments: comments,
+	}
+
+	if *dry {
+		return
 	}
 
 	c := gerrit.NewClient(reviewURL, auth)
@@ -59,7 +73,7 @@ func main() {
 func parseEnv(name string, must bool) string {
 	val := os.Getenv(name)
 	if must && val == "" {
-		fmt.Printf("%s must be set", name)
+		fmt.Fprintf(os.Stderr, "%s must be set\n", name)
 		os.Exit(1)
 	}
 	return val
