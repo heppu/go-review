@@ -12,12 +12,13 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/google/go-github/github"
 	"github.com/heppu/go-review"
 	"github.com/stretchr/testify/require"
 	"golang.org/x/build/gerrit"
 )
 
-func TestLinesToReviewCommentsSuccess(t *testing.T) {
+func TestLinesToGerritCommentsSuccess(t *testing.T) {
 	tests := []struct {
 		name     string
 		input    io.Reader
@@ -75,10 +76,14 @@ file.go:1:2: some problem`),
 		comments: map[string][]gerrit.CommentInput{
 			"file.go": {{Line: 1, Message: "some problem"}},
 		},
+	}, {
+		name:     "EmptyInput",
+		input:    strings.NewReader(``),
+		comments: map[string][]gerrit.CommentInput{},
 	}}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			comments, err := review.LinesToReviewComments(tt.input)
+			comments, err := review.LinesToGerritComments(tt.input)
 			require.NoError(t, err)
 			require.Equal(t, tt.comments, comments)
 		})
@@ -91,7 +96,7 @@ type errorReader struct {
 
 func (e errorReader) Read(_ []byte) (int, error) { return 0, e.err }
 
-func TestLinesToReviewCommentsError(t *testing.T) {
+func TestLinesToGerritCommentsError(t *testing.T) {
 	tests := []struct {
 		name  string
 		input io.Reader
@@ -100,10 +105,6 @@ func TestLinesToReviewCommentsError(t *testing.T) {
 		name:  "ReaderFailure",
 		input: errorReader{err: errors.New("error")},
 		err:   errors.New("error"),
-	}, {
-		name:  "NoLines",
-		input: strings.NewReader(""),
-		err:   review.ErrNoProblemsFound,
 	}, {
 		name:  "NoDescription",
 		input: strings.NewReader("file.go:1:1:"),
@@ -127,13 +128,39 @@ func TestLinesToReviewCommentsError(t *testing.T) {
 	}}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			_, err := review.LinesToReviewComments(tt.input)
+			_, err := review.LinesToGerritComments(tt.input)
 			require.EqualError(t, err, tt.err.Error())
 		})
 	}
 }
 
-func ExampleLinesToReviewComments() {
+func TestLinesToGithubCommentsSuccess(t *testing.T) {
+	tests := []struct {
+		name     string
+		input    io.Reader
+		diff     string
+		comments []*github.DraftReviewComment
+	}{{
+		name: "MultiLineSingleFile",
+		input: strings.NewReader(`cmd/go-gh-review/main.go:16:2: "version" is a global variable (gochecknoglobals)
+cmd/go-gh-review/main.go:17:2: "commit" is a global variable (gochecknoglobals)
+cmd/go-gh-review/main.go:18:2: "date" is a global variable (gochecknoglobals)
+cmd/go-gh-review/main.go:20:2: "ver" is a global variable (gochecknoglobals)
+cmd/go-gh-review/main.go:21:2: "dry" is a global variable (gochecknoglobals)
+cmd/go-gh-review/main.go:22:2: "show" is a global variable (gochecknoglobals)
+`),
+		comments: []*github.DraftReviewComment{},
+	}}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			comments, err := review.LinesToGerritComments(tt.input)
+			require.NoError(t, err)
+			require.Equal(t, tt.comments, comments)
+		})
+	}
+}
+
+func ExampleLinesToGerritComments() {
 	// Mock Gerrit server
 	s := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		data, _ := ioutil.ReadAll(r.Body)
@@ -143,11 +170,8 @@ func ExampleLinesToReviewComments() {
 	defer s.Close()
 
 	input := strings.NewReader(`file_1.go:1:2: some problem`)
-	comments, err := review.LinesToReviewComments(input)
+	comments, err := review.LinesToGerritComments(input)
 	if err != nil {
-		if err == review.ErrNoProblemsFound {
-			return
-		}
 		log.Fatal(err)
 	}
 
