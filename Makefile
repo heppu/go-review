@@ -1,12 +1,12 @@
 export GO111MODULE = on
 
-BIN_FILE = target/bin/go-review
+BIN_FILE = target/bin/go-gerrit-review
 COVERAGE_FILE = target/test/coverage.txt
 
 .PHONY: build
 build:
 	@mkdir -p $(dir ${BIN_FILE})
-	go build -o ${BIN_FILE} cmd/go-review/main.go
+	go build -o ${BIN_FILE} cmd/go-gerrit-review/main.go
 
 .PHONY: test
 test:

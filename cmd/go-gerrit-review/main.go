@@ -17,7 +17,7 @@ var (
 	date    = "unknown"
 
 	ver  = flag.Bool("version", false, "print versions details and exit")
-	dry  = flag.Bool("dry-run", false, "parse env vars and input but do not publish review")
+	dry  = flag.Bool("dry", false, "parse env vars and input but do not publish review")
 	show = flag.Bool("show", false, "print lines while parsing")
 )
 
@@ -45,14 +45,16 @@ func main() {
 		input = io.TeeReader(os.Stdin, os.Stdout)
 	}
 
-	comments, err := review.LinesToReviewComments(input)
+	comments, err := review.LinesToGerritComments(input)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
-		if err == review.ErrNoProblemsFound {
-			return
-		}
 		os.Exit(1)
 	}
+
+	if len(comments) == 0 {
+		return
+	}
+
 	r := gerrit.ReviewInput{
 		Message:  "go-review",
 		Comments: comments,
