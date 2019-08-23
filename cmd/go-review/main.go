@@ -30,8 +30,8 @@ func main() {
 	}
 
 	reviewURL := parseEnv("GERRIT_REVIEW_URL", true)
-	changeID := parseEnv("GERRIT_CHANGE_ID", true)
-	revision := parseEnv("GERRIT_PATCHSET_REVISION", true)
+	changeID := parseEnv("GERRIT_CHANGE_NUMBER", true)
+	revision := parseEnv("GERRIT_PATCHSET_NUMBER", true)
 	username := parseEnv("GERRIT_USERNAME", false)
 	password := parseEnv("GERRIT_PASSWORD", false)
 

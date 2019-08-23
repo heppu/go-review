@@ -17,10 +17,11 @@ Latest version from master can be installed by running: `go get github.com/heppu
 go-review uses following environment variables to access gerrit review server:
 
 - `GERRIT_REVIEW_URL`: required
-- `GERRIT_CHANGE_ID`: required
-- `GERRIT_PATCHSET_REVISION`: required
+- `GERRIT_CHANGE_NUMBER`: required
+- `GERRIT_PATCHSET_NUMBER`: required
 - `GERRIT_USERNAME`: optional
-- `GERRIT_PASSWORD`: optional
+- `GERRIT_PASSWORD`: optional - This is the HTTP Credential, not the password
+  used to login to gerrit.
 
 Behavior can be controlled with following flags:
 
