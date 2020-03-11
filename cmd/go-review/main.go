@@ -67,7 +67,6 @@ func main() {
 		fmt.Println(err)
 		os.Exit(1)
 	}
-
 }
 
 func parseEnv(name string, must bool) string {
