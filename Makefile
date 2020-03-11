@@ -1,5 +1,3 @@
-export GO111MODULE = on
-
 BIN_FILE = target/bin/go-review
 COVERAGE_FILE = target/test/coverage.txt
 
@@ -15,7 +13,7 @@ test:
 
 .PHONY: lint
 lint:
-	golangci-lint run --tests=false --enable-all --disable=lll,gochecknoglobals ./...
+	golangci-lint run --tests=false --enable-all --disable=lll,gochecknoglobals,wsl,gomnd ./...
 
 .PHONY: goveralls
 goveralls: test
