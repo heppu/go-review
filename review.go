@@ -53,6 +53,9 @@ func LinesToReviewComments(r io.Reader) (comments map[string][]gerrit.CommentInp
 		if strings.HasPrefix(line, "#") {
 			continue
 		}
+		if strings.HasPrefix(line, "go: downloading ") {
+			continue
+		}
 
 		problem, err := parseLine(line)
 		if err != nil {
